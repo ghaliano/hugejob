@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome!{% endblock %}</title>
+        {% block stylesheets %}{% endblock %}
+    </head>
+    <body>
+        <ul>
+            <li><a href="{{ path('app_event_index') }}">Events list</a></li>
+        </ul>
+        <hr />
+        {% block body %}{% endblock %}
+        {% block javascripts %}{% endblock %}
+        <hr />
+    <div>copyright hugecders 2019</div>
+    </body>
+</html>
