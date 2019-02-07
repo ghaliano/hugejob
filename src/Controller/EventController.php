@@ -1,8 +1,13 @@
 <?php
 namespace App\Controller;
 use App\Entity\Event;
+use Symfony\Component\Form\Extension\Core\Type\IntegerType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class EventController extends AbstractController
@@ -14,7 +19,7 @@ class EventController extends AbstractController
     {
         $events = $this->getDoctrine()
             ->getRepository(Event::class)
-            ->findBy(['name' => "Event 2"])
+            ->findAll()
         ;
 
         return $this->render(
@@ -28,17 +33,29 @@ class EventController extends AbstractController
     /**
      * @Route("event/add")
      */
-    public function addAction(){
-        $entityManager = $this->getDoctrine()->getManager();
+    public function addAction(Request $request){
         $event = new Event();
-        $event->setName("Event 2");
-        $event->setDescription("Event culturel");
-        $event->setNbPlace(10);
-        $entityManager->persist($event);
-        $entityManager->flush();
+        $form = $this->createFormBuilder($event)
+            ->add('name', TextType::class)
+            ->add('description', TextareaType::class)
+            ->add('nbPlace', IntegerType::class)
+            ->add('save', SubmitType::class, ['label' => 'Enregistrer'])
+            ->getForm()
+        ;
 
-        return new Response(
-            'Saved new event with ID:' . $event->getId()
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()){
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($event);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_event_index');
+        }
+
+        return $this->render(
+            'event/add.html.twig',
+            ['myform' => $form->createView()]
         );
     }
 
